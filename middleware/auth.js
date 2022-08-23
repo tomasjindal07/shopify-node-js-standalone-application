@@ -2,6 +2,7 @@ const Shop = require('../models/shop');
 const { config  } = require('../config');
 
 module.exports = async (req,res, next) => {
+
     if(!req.session.shop || !req.session.access_token){
         return res.render('errors/404');
     }

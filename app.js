@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
 const session = require('express-session');
+const SequelizeStore = require("connect-session-sequelize")(session.Store);
 
 const webRoute = require('./routes/web');
 const apiRoute = require('./routes/api');
@@ -9,6 +10,7 @@ const apiRoute = require('./routes/api');
 const sequelize = require('./util/database');
 
 const app = express();
+
 
 app.set('view engine', 'ejs');
 app.set('views', 'views');
@@ -19,7 +21,10 @@ app.use(
     session({
         secret: 'IERYIEUWYIEWDFJKSB26438664872647724JF!@#$%^&*()_+',
         resave: false,
-        saveUninitialized: false
+        saveUninitialized: false,
+        store: new SequelizeStore({
+            db: sequelize,
+        }),
     })
 );
 
