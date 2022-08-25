@@ -6,6 +6,13 @@ module.exports = async (req,res, next) => {
     const hmac = req.headers['x-shopify-hmac-sha256'];
     const shop = req.headers['x-shopify-shop-domain'];
 
+    if(!shop || !hmac){
+        return res.status(401).json({
+            success : false,
+            message : "Unauthorized"
+        });
+    }
+
     const shopData = await Shop.findOne({where : {shop: shop, status : 'A'}});
 
     if(!shopData){

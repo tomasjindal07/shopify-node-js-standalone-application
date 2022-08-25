@@ -27,6 +27,7 @@ exports.getShopifyCallBack = async (req,res) => {
 
             req.session.shop         = shop;
             req.session.access_token = storeData.access_token;
+            req.session.shop_id      = shopData.id;
             req.session.shop_name    = shopData.shop_name;
             req.session.email        = shopData.email;
 
@@ -76,18 +77,28 @@ exports.getShopifyRedirect = async (req,res,next) => {
             };
 
             try {
-                const s = await Shop.findOne({where : {shop: shop}});
+                let s = await Shop.findOne({where : {shop: shop}});
             
                 if(s){
                     await s.update(insertData);
                 } else {
-                    await Shop.create(insertData);
+                    s = await Shop.create(insertData);
                 }
 
-                const uninstalledWebhookData = await shopify.postWebhooks('app/uninstalled','api/uninstalled');
+                await shopify.postWebhooks('app/uninstalled','webhook/uninstalled');
+                
+                await shopify.postWebhooks('customers/create','webhook/customer/create');
+                await shopify.postWebhooks('customers/update','webhook/customer/create');
+
+                await shopify.postWebhooks('products/create','webhook/product/create');
+                await shopify.postWebhooks('products/update','webhook/product/create');
+
+                await shopify.postWebhooks('orders/create','webhook/order/create');
+                await shopify.postWebhooks('orders/updated','webhook/order/create');
 
                 req.session.shop         = shop;
                 req.session.access_token = tokenData.access_token;
+                req.session.shop_id      = s.id;
                 req.session.shop_name    = shopData.shop_name;
                 req.session.email        = shopData.email;
                 
